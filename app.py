@@ -1,57 +1,82 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-import json
 from PIL import Image
+import json
+import os
+import urllib.request
 
-# Page configuration
-st.set_page_config(
-    page_title="Plant Disease Detection",
-    page_icon="🌿",
-    layout="centered"
-)
+# -----------------------------
+# Download model from Hugging Face
+# -----------------------------
 
+MODEL_URL = "https://huggingface.co/bikrantchaurasiya/plant_disease_model/resolve/main/plant_disease_model.keras"
+MODEL_PATH = "plant_disease_model.keras"
+
+if not os.path.exists(MODEL_PATH):
+    urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+
+
+# -----------------------------
 # Load model
+# -----------------------------
+
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("plant_disease_model.keras")
+    return tf.keras.models.load_model(MODEL_PATH)
 
 model = load_model()
 
-# Load class names
-with open("class_names.json", "r") as f:
-    class_names = json.load(f)
+
+# -----------------------------
+# Class names
+# -----------------------------
+
+class_names = [
+    "Pepper__bell___Bacterial_spot",
+    "Potato___healthy",
+    "Tomato_Leaf_Mold",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus",
+    "Tomato_Bacterial_spot",
+    "Tomato_Septoria_leaf_spot",
+    "Tomato_healthy",
+    "Tomato_Spider_mites_Two_spotted_spider_mite",
+    "Tomato_Early_blight",
+    "Tomato__Target_Spot"
+]
 
 
-# Prediction function
+# -----------------------------
+# Prediction
+# -----------------------------
+
 def predict(image):
 
     image = image.resize((224, 224))
-    image = np.array(image)
 
-    # Add batch dimension
-    image = np.expand_dims(image, axis=0)
+    img = np.array(image)
 
-    prediction = model.predict(image, verbose=0)[0]
+    img = np.expand_dims(img, axis=0)
+
+    prediction = model.predict(img, verbose=0)[0]
 
     index = np.argmax(prediction)
 
-    disease = class_names[index]
-    confidence = prediction[index] * 100
+    confidence = prediction[index]
 
-    return disease, confidence
+    return class_names[index], float(confidence)
 
 
-# UI
+# -----------------------------
+# Streamlit UI
+# -----------------------------
+
 st.title("🌿 Plant Disease Detection")
 
-st.write(
-    "Upload a plant leaf image to detect the disease "
-    "using a CNN-based deep learning model."
-)
+st.write("Upload a plant leaf image to detect the disease.")
 
 uploaded_file = st.file_uploader(
-    "Upload a leaf image",
+    "Choose an image",
     type=["jpg", "jpeg", "png"]
 )
 
@@ -59,16 +84,14 @@ if uploaded_file is not None:
 
     image = Image.open(uploaded_file)
 
-    st.image(
-        image,
-        caption="Uploaded Leaf Image",
-        use_container_width=True
-    )
+    st.image(image, caption="Uploaded Image")
 
-    if st.button("🔍 Predict Disease"):
+    if st.button("Predict Disease"):
 
         disease, confidence = predict(image)
 
         st.success(f"Detected Disease: {disease}")
 
-        st.info(f"Confidence: {confidence:.2f}%")
+        st.write(
+            f"Confidence: {confidence * 100:.2f}%"
+        )
