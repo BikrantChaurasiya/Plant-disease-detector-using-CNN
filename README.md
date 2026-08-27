@@ -2,7 +2,11 @@
 
 A deep learning-based image classification project for detecting plant diseases from leaf images using a Convolutional Neural Network (CNN).
 
-The system takes a plant leaf image as input and predicts the corresponding disease class with a confidence score. A simple Gradio interface is also provided for testing the trained model.
+The system takes a plant leaf image as input and predicts the corresponding disease class with a confidence score.
+
+## 🚀 Live Demo
+
+👉 **[Try the Plant Disease Detection App](https://plant-disease-detector-using-cnn-zfoqggcm5yfzqzvrpobsnh.streamlit.app/)**
 
 ---
 
@@ -22,7 +26,7 @@ This project uses a custom CNN model trained on the PlantVillage dataset to auto
 - 📈 Training and validation accuracy/loss visualization
 - 🔲 Confusion matrix
 - 📋 Classification report
-- 🌐 Gradio-based prediction interface
+- 🌐 Web-based prediction interface using Streamlit
 
 ---
 
