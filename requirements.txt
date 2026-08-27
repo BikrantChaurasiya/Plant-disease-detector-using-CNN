@@ -1,7 +1,6 @@
 tensorflow==2.20.0
-gradio
 numpy
 pillow
 streamlit
-python==3.12
+
 
